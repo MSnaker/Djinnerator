@@ -10,12 +10,6 @@ print('Acquiring password...')
 password = b'banananas'
 print('Obtaining salt...')
 salt = os.urandom(16)
-print('Saving salt...')
-with open(''.join([os.getcwd(),'/text/salt.txt']),'w',encoding='utf-8') as fsalt:
-    fsalt.truncate(0)
-    fsalt.write('\n')
-    fsalt.write(str(salt))
-fsalt.close()
 
 # This section is to set up the function Fernet to encode the files.
 print('Initialising Fernet...')
@@ -26,6 +20,12 @@ kdf = PBKDF2HMAC(
     iterations=420069,
 )
 key = base64.urlsafe_b64encode(kdf.derive(password))
+print('Saving salt and key...')
+with open(''.join([os.getcwd(),'/text/salt.txt']),'wb') as fsalt:
+    fsalt.truncate(0)
+    fsalt.write(salt)
+    # fsalt.write(b'\n')
+    # fsalt.write(key)
 f = Fernet(key)
 
 # Open the file that contains the book that has to be parsed and encoded.
@@ -42,7 +42,7 @@ print('Reading file lines...')
 list_line = fr.readlines()
 
 print('Encoding and writing lines to single files...')
-fw = open(''.join([path,'/encoded.txt']),'w',encoding='utf-8')
+fw = open(''.join([path,'/encoded.txt']),'wb')
 for element in list_line:
     if element.startswith("Page"):
         if element.startswith("Page | 31"):
@@ -51,17 +51,15 @@ for element in list_line:
         str_pagenum = ''.join([element[7],element[8]])
         pagenum = int(str_pagenum)
         print('Creating line for pagebreak', pagenum, '...')
-        fw.write('\n')
-        fw.write(''.join(['Page ', str(pagenum)]))
-        fw.write('\n')
+        fw.write(bytes(''.join(['Page_', str(pagenum), '\n']),'utf-8'))
         # list_filename_join = [path,'/pages/',str(pagenum),'.txt']
         # filename = ''.join(list_filename_join)
         # fw = open(filename,'w',encoding="utf-8")
     else:
         if len(element) > 20:
             element_enc = f.encrypt(bytes(element, 'utf-8'))
-            fw.write(str(element_enc))
-            fw.write('\n')
+            fw.write(element_enc)
+            fw.write(b'\n')
 
 fr.close()
 fw.close()
