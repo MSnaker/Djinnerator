@@ -1,7 +1,6 @@
 '''This .py file is created to split a book.txt file into different files, that are the book's pages. It will also encrypt them using a custom password, so that the files may be then used to obtain passwords, given two parameters (page and line) and the decryption password.'''
 import os
 import base64
-from genericpath import isfile
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -59,7 +58,7 @@ for element in list_line:
         # filename = ''.join(list_filename_join)
         # fw = open(filename,'w',encoding="utf-8")
     else:
-        if element.__sizeof__() > 20:
+        if len(element) > 20:
             element_enc = f.encrypt(bytes(element, 'utf-8'))
             fw.write(str(element_enc))
             fw.write('\n')
