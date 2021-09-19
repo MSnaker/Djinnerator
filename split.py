@@ -41,6 +41,18 @@ fr = open(filename,'r',encoding="utf-8")
 print('Reading file lines...')
 list_line = fr.readlines()
 
+# In this section, the file is prepared by separating words in lines, removing characters that might be mistranslated between bits and strings.
+
+
+for element in list_line:
+    line = element.split(None)
+    for word in line:
+        word = word.translate(None, '\'.’::?!— -“”()')
+
+    
+
+
+# Encryption of all lines and writing process to a file
 print('Encoding and writing lines to single files...')
 fw = open(''.join([path,'/encoded.txt']),'wb')
 for element in list_line:

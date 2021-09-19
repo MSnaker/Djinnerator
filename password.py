@@ -64,8 +64,4 @@ key = base64.urlsafe_b64encode(kdf.derive(password))
 # print('Fernet key is:', key)
 f = Fernet(key)
     
-for page in arr_lines[0:3]:
-    print('Page____________')
-    for line in page:
-        decr_line = f.decrypt(line)
-        print(decr_line)
+
