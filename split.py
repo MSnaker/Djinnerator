@@ -41,16 +41,16 @@ fr = open(filename,'r',encoding="utf-8")
 print('Reading file lines...')
 list_line = fr.readlines()
 
-# In this section, the file is prepared by separating words in lines, removing characters that might be mistranslated between bits and strings.
-
-
+# In this section, the file is prepared by separating words in lines, removing characters that might be mistranslated between bits and strings, and putting everything to lowercase.
+swapfrom = ''
+swapto = ''
+remove = '\'.’::?!— -“”()'
 for element in list_line:
-    line = element.split(None)
+    line = element.split(' ')
     for word in line:
-        word = word.translate(None, '\'.’::?!— -“”()')
-
-    
-
+        transla_table = word.maketrans(swapfrom, swapto, remove)
+        word = word.translate(transla_table).lower()
+    element = ''.join(line)
 
 # Encryption of all lines and writing process to a file
 print('Encoding and writing lines to single files...')

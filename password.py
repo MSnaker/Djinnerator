@@ -64,4 +64,16 @@ key = base64.urlsafe_b64encode(kdf.derive(password))
 # print('Fernet key is:', key)
 f = Fernet(key)
     
+# Writing the decoded text to another file, to prove that we are on the right path (we can encrypt and then decrypt strings)
+i = 1
+print('Writing to text file...')
+with open('./decoded.txt', 'w', encoding='utf-8') as fwrite:
+    for array_page in arr_lines:
+        fwrite.write(''.join(['Page',str(i)]))
+        fwrite.write('\n')
+        i +=1
+        for bytes_line in array_page:
+            decr_line = f.decrypt(bytes_line)
+            fwrite.write(str(decr_line))
+            fwrite.write('\n')
 
