@@ -4,29 +4,23 @@ import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import password
 
 # This section is to estabilish a password, a salt, and we save the salt, otherwise we will not be able to decode the files afterwards.
 print('Acquiring password...')
-password = b'banananas'
+psw = b'banananas'
 print('Obtaining salt...')
 salt = os.urandom(16)
 
 # This section is to set up the function Fernet to encode the files.
-print('Initialising Fernet...')
-kdf = PBKDF2HMAC(
-    algorithm=hashes.SHA256(),
-    length=32,  
-    salt=salt,
-    iterations=420069,
-)
-key = base64.urlsafe_b64encode(kdf.derive(password))
-print('Saving salt and key...')
+f = password.start_Fernet(salt,psw)
+
+print('Saving salt (not key)...')
 with open(''.join([os.getcwd(),'/text/salt.txt']),'wb') as fsalt:
     fsalt.truncate(0)
     fsalt.write(salt)
     # fsalt.write(b'\n')
     # fsalt.write(key)
-f = Fernet(key)
 
 # Open the file that contains the book that has to be parsed and encoded.
 print('Opening book file...')
@@ -42,22 +36,25 @@ print('Reading file lines...')
 list_line = fr.readlines()
 
 # In this section, the file is prepared by separating words in lines, removing characters that might be mistranslated between bits and strings, and putting everything to lowercase.
-swapfrom = ''
-swapto = ''
-remove = '\'.’::?!— -“”()'
+print('Removing unnecessary letters...')
+swapfrom = 'àèìòù'
+swapto = 'aeiou'
+remove = '\'.’::?!—,-“”()'
+list_newlines = []
 for element in list_line:
     line = element.split(' ')
+    newline = []
     for word in line:
         transla_table = word.maketrans(swapfrom, swapto, remove)
-        word = word.translate(transla_table).lower()
-    element = ''.join(line)
+        newline.append(word.translate(transla_table).lower())
+    list_newlines.append(' '.join(newline))
 
 # Encryption of all lines and writing process to a file
 print('Encoding and writing lines to single files...')
 fw = open(''.join([path,'/encoded.txt']),'wb')
-for element in list_line:
-    if element.startswith("Page"):
-        if element.startswith("Page | 31"):
+for element in list_newlines:
+    if element.startswith("page"):
+        if element.startswith("page | 31"):
             print('Reached page 31, terminating script.')
             break
         str_pagenum = ''.join([element[7],element[8]])
