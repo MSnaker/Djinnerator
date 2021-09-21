@@ -81,17 +81,21 @@ def export_decrypted():
                 fwrite.write(str(decr_line))
                 fwrite.write('\n')
 
-# This function extracts the first n words from the y line of the x page, and transforms the result into a password, accepting a string separators, that will rotate based on the line number in the page.
+# This function gets the y line of the x page, and decrypts it
+def getline(arr_lines, fernet, x, y):
 
-def pswgen(arr_lines, fernet, x, y, n, seps): 
-    tr_from = 'AEIOUY'
-    tr_to = '4310*<'
-
-    print('Decrypting and generating password')
+    print('Decrypting', x, 'page,', y, 'line...')
     line = arr_lines[x][y]
     decr_line = fernet.decrypt(line)
-    line_split = str(decr_line, 'utf-8').split(' ')
-    sep = seps[y%len(seps)]
+    return decr_line
+
+# This function extracts the first n words from a string and transforms the result into a password, accepting a string separators, that will rotate based on the line number in the page.
+def pswgen(line, int_line, n, seps): 
+    tr_from = 'AEIOUY'
+    tr_to = '4310*<'
+    print('Generating password...')
+    line_split = str(line, 'utf-8').split(' ')
+    sep = seps[int_line%len(seps)]
     first = line_split[0].upper()
     trtable = first.maketrans(tr_from,tr_to)
     first_trans = first.translate(trtable)
@@ -103,9 +107,8 @@ def pswgen(arr_lines, fernet, x, y, n, seps):
 
     return pswout
 
-psw  = pswgen(arr_lines, f, 0, 0, 3, '.,-')
+psw  = pswgen(getline(arr_lines, f, 0, 1), 1, 3, '.,-')
 
-print('Your password is: ', psw)
 
 
      
