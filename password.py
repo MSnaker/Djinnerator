@@ -89,20 +89,23 @@ def pswgen(arr_lines, fernet, x, y, n, seps):
 
     print('Decrypting and generating password')
     line = arr_lines[x][y]
-    fernet.decrypt(line)
-    line_split = str(line, 'utf-8').split(' ')
+    decr_line = fernet.decrypt(line)
+    line_split = str(decr_line, 'utf-8').split(' ')
     sep = seps[y%len(seps)]
     first = line_split[0].upper()
     trtable = first.maketrans(tr_from,tr_to)
     first_trans = first.translate(trtable)
-    last = line_split[-1].upper()
+    last = line_split[n-1].upper()
     trtable = last.maketrans(tr_from,tr_to)
     last_trans = last.translate(trtable)
-    mid = ''.join(line_split[1:-2])
+    mid = ''.join(line_split[1:n-1])
     pswout = sep.join([first_trans,mid,last_trans])
 
     return pswout
 
+psw  = pswgen(arr_lines, f, 0, 0, 3, '.,-')
+
+print('Your password is: ', psw)
 
 
      
