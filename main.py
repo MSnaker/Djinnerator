@@ -14,8 +14,6 @@ arr_lines = Password.import_encrypted()
 enc_proof = b'gAAAAABhSd17y7PzMpGyLmQD7TZlPbXkURzrEmuO2SADY1Lc-HkQgNkoPPl6iqANnriaZNOWanv5B2rSj0M-iFiqwsxyuntKw_rdd1xb8ErZLp09QlvRAgY='
 
 def press(button):
-    if button == 'Cancel':
-        app.stop()
     pwd = bytes(app.getEntry('PwdEnt'),'utf-8')
     try:
         #code here to create key from a password
@@ -26,12 +24,39 @@ def press(button):
     if button == 'Acquire':
         app.setLabel('proofLab', proof)
 
+def pressecond(button):
+    if button == 'Cancel':
+        app.stop()
+    pwd = bytes(app.getEntry('PwdEnt'),'utf-8')
+    try:
+        '''This method gets the y line of the x page, and decrypts it'''
+        f = Password.start_Fernet(salt, pwd)
+        x = app.getEntry('firstEnt').lower() - 96
+        y = app.getEntry('secondEnt').lower() - 96
+        print('Decrypting', x, 'page,', y, 'line...')
+        line = arr_lines[x][y]
+        decr_line = f.decrypt(line)
+
+    except (cryptography.fernet.InvalidToken, TypeError):
+        proof = "wow, much try"
+    if button == 'Generate':
+        app.setLabel('proofLab', proof)
+
 
 with gui('Password Djinnerator') as app:
     app.addLabel('proofLab','',row = 1, colspan=2)    
     app.addLabel('pwdLab', 'Enter Password', row=0,column=0)
     app.addEntry('PwdEnt',row = 0, column = 1)
 
-    app.addButtons(['Cancel', 'Acquire'], press, row = 2)
+    app.addButton('Acquire', press, row = 2, colspan=2)
+
+    app.addLabel('firstLab','Entries:',row=3,colspan = 2)
+    app.addEntry('firstEnt',row=4, column = 0)
+    app.addEntry('secondEnt',row=4, column = 1)
+    app.setEntryMaxLength('firstEnt',1)
+    app.setEntryMaxLength('secondEnt',1)
+
+    app.addLabel('outLab',row = 5, colspan=2)
+    app.addButtons(['Cancel', 'Generate'], presssecond ,row = 6)
 
 app.go()
