@@ -24,15 +24,14 @@ class Password():
         page, i = 0, 0
         for line in list_lines:
             if line.startswith(b'Page'):
-                i = 0
-                if len(line)>7:
+                if i>9:
                     page = 10*int(chr(line[5]))+int(chr(line[6])) 
                 else:
                     page = int(chr(line[5]))
                 print('Accessing page', page,'...')
+                i+=1
                 continue
             arr_lines[page][i] = line
-            i+=1
 
         i = 0
         del arr_lines[0]

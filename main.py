@@ -23,25 +23,21 @@ def press(button):
         proof = "wow, much try"
     if button == 'Acquire':
         app.setLabel('proofLab', proof)
-
-def pressecond(button):
     if button == 'Cancel':
         app.stop()
-    pwd = bytes(app.getEntry('PwdEnt'),'utf-8')
-    try:
-        '''This method gets the y line of the x page, and decrypts it'''
-        f = Password.start_Fernet(salt, pwd)
-        x = app.getEntry('firstEnt').lower() - 96
-        y = app.getEntry('secondEnt').lower() - 96
-        print('Decrypting', x, 'page,', y, 'line...')
-        line = arr_lines[x][y]
-        decr_line = f.decrypt(line)
-
-    except (cryptography.fernet.InvalidToken, TypeError):
-        proof = "wow, much try"
+    
     if button == 'Generate':
-        app.setLabel('proofLab', proof)
-
+        try:
+            '''This method gets the y line of the x page, and decrypts it'''
+            x = int(app.getEntry('firstEnt').lower(), 'utf-8') - 96
+            y = int(app.getEntry('secondEnt').lower(), 'utf-8') - 96
+            print('Decrypting', x, 'page,', y, 'line...')
+            line = arr_lines[x][y]
+            decr_line = f.decrypt(line)
+            output = str(Password.pswgen(decr_line,y,3,'.,-'))
+        except (cryptography.fernet.InvalidToken, TypeError):
+            output = "wow, much try"
+        app.setLabel('outLab',output)
 
 with gui('Password Djinnerator') as app:
     app.addLabel('proofLab','',row = 1, colspan=2)    
@@ -56,7 +52,7 @@ with gui('Password Djinnerator') as app:
     app.setEntryMaxLength('firstEnt',1)
     app.setEntryMaxLength('secondEnt',1)
 
-    app.addLabel('outLab',row = 5, colspan=2)
-    app.addButtons(['Cancel', 'Generate'], presssecond ,row = 6)
+    app.addLabel('outLab','',row = 5, colspan=2)
+    app.addButtons(['Cancel', 'Generate'], press ,row = 6)
 
 app.go()
