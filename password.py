@@ -81,13 +81,13 @@ class Password():
         decr_line = fernet.decrypt(line)
         return decr_line
 
-    def pswgen(line, int_line, n, seps): 
+    def pswgen(line, int_nline, n, seps): 
         '''This method extracts the first n words from a string and transforms the result into a password, accepting a string separators, that will rotate based on the line number in the page.'''
         tr_from = 'AEIOUY'
         tr_to = '4310*<'
         print('Generating password...')
         line_split = str(line, 'utf-8').split(' ')
-        sep = seps[int_line%len(seps)]
+        sep = seps[int_nline%len(seps)]
         first = line_split[0].upper()
         trtable = first.maketrans(tr_from,tr_to)
         first_trans = first.translate(trtable)
@@ -99,7 +99,14 @@ class Password():
 
         return pswout
 
-
-
+    def acquire_parameters(minimum,maximum,list_line,separators):
+        pswlen, int_nwords = 0, 0
+        for element in list_line:
+            pswlen += len(element)
+            int_nwords += 1
+            if pswlen<maximum and pswlen>minimum:
+                break
+        seps = ''.join(separators.split(' '))
+        return [int_nwords,seps]
 
         
