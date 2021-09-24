@@ -40,19 +40,38 @@ def press(button):
         app.setLabel('outLab',output)
 
 with gui('Password Djinnerator') as app:
-    app.addLabel('proofLab','',row = 1, colspan=2)    
-    app.addLabel('pwdLab', 'Enter Password', row=0,column=0)
-    app.addEntry('PwdEnt',row = 0, column = 1)
+    # GUI elements that prove to the user that they have input the correct password
+    int_row = 0
+    app.addLabel('pwdLab', 'Enter Password', row=int_row,column=0)
+    app.addEntry('PwdEnt',row = int_row, column = 1)
+    int_row+=1
+    app.addLabel('proofLab','',row = int_row, colspan=2)  
+    int_row+=1
+    app.addButton('Acquire', press, row = int_row, colspan=2)
 
-    app.addButton('Acquire', press, row = 2, colspan=2)
-
-    app.addLabel('firstLab','Entries:',row=3,colspan = 2)
-    app.addEntry('firstEnt',row=4, column = 0)
-    app.addEntry('secondEnt',row=4, column = 1)
+    # GUI elements to input the parameters that will determine the password output
+    # Page and line
+    int_row+=1
+    app.addLabel('EntriesLab','Entries:',row=int_row,colspan = 2)
+    int_row+=1
+    app.addEntry('firstEnt',row=int_row, column = 0)
+    app.addEntry('secondEnt',row=int_row, column = 1)
     app.setEntryMaxLength('firstEnt',1)
     app.setEntryMaxLength('secondEnt',1)
+    # Password length limits, non-allowed characters
+    int_row+=1
+    app.addLabel('MinLenLab', 'Minimum length: ',row = int_row, column = 0)
+    app.addEntry('MinLenEnt', row = int_row, column = 1)
+    int_row+=1
+    app.addLabel('MaxLenLab', 'Maximum length: ',row = int_row, column = 0)
+    app.addEntry('MaxLenEnt', row = int_row, column = 1)
+    
 
-    app.addLabel('outLab','',row = 5, colspan=2)
-    app.addButtons(['Cancel', 'Generate'], press ,row = 6)
+    # GUI output
+    int_row+=1
+    app.addLabel('msgLab','Your password is: ', row= int_row, column=0)
+    app.addLabel('outLab','',row = int_row, column = 1)
+    int_row+=1
+    app.addButtons(['Cancel', 'Generate'], press ,row = int_row)
 
 app.go()
