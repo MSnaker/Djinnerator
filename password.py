@@ -99,8 +99,7 @@ class Password():
         return pswout
 
     def tune(line_split, int_nwords, int_minlen, int_maxlen):
-        '''Something's wrong, I can feel it. 
-        How can I call a self call and make this recursive?'''
+        '''Something's wrong, I can feel it.'''
         len_pwd = 0
         for word in line_split[0:int_nwords]:
             len_pwd += len(word) + 1
