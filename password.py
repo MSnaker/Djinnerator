@@ -98,19 +98,27 @@ class Password():
 
         return pswout
 
-    def check(self, line_split, int_nwords,int_minlen, int_maxlen):
+    def tune(line_split, int_nwords, int_minlen, int_maxlen):
         '''Something's wrong, I can feel it. 
         How can I call a self call and make this recursive?'''
         len_pwd = 0
         for word in line_split[0:int_nwords]:
-            len_pwd += len(word)
+            len_pwd += len(word) + 1
+        len_pwd -= 1
         if len_pwd>int_maxlen:
             int_nwords -= 1
-            self.check(line_split, int_nwords, int_minlen, int_maxlen)
+            Password.tune(line_split, int_nwords, int_minlen, int_maxlen)
         else: 
             if len_pwd>int_minlen:
                 int_nwords += 1
-                self.check(line_split, int_nwords, int_minlen, int_maxlen)
-        return int_nwords
+                Password.tune(line_split, int_nwords, int_minlen, int_maxlen)
+        return
 
+    def sep_tune(seps, forbidden):
+        temporary = []
+        for character in seps:
+            if character not in forbidden:
+                temporary.append(character)
+        seps = ''.join(temporary)
+        return
         

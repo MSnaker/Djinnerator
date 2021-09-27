@@ -42,13 +42,13 @@ def press(button):
             decr_line = f.decrypt(line)
             # Here it is determined if the password satisfies the parameters acquired, if parameters have been provided
             uno = app.getEntry('MinLenEnt')
-            if uno != '':
+            if uno != None:
                 int_minlen = uno
             doss = app.getEntry('MaxLenEnt')
-            if doss != '':
+            if doss != None:
                 int_maxlen = doss
             tress = app.getEntry('naEnt')
-            if tress != '':
+            if tress != None:
                 forbidden = tress
             line_split = str(decr_line, 'utf-8').split(' ')
             Password.tune(line_split, int_nwords, int_minlen, int_maxlen)
