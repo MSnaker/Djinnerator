@@ -81,12 +81,11 @@ class Password():
         decr_line = fernet.decrypt(line)
         return decr_line
 
-    def pswgen(line, int_nline, n, seps): 
+    def pswgen(line_split, int_nline, n, seps): 
         '''This method extracts the first n words from a string and transforms the result into a password, accepting a string separators, that will rotate based on the line number in the page.'''
         tr_from = 'AEIOUY'
         tr_to = '4310*<'
         print('Generating password...')
-        line_split = str(line, 'utf-8').split(' ')
         sep = seps[int_nline%len(seps)]
         first = line_split[0].upper()
         trtable = first.maketrans(tr_from,tr_to)
@@ -99,14 +98,19 @@ class Password():
 
         return pswout
 
-    def acquire_parameters(minimum,maximum,list_line,separators):
-        pswlen, int_nwords = 0, 0
-        for element in list_line:
-            pswlen += len(element)
-            int_nwords += 1
-            if pswlen<maximum and pswlen>minimum:
-                break
-        seps = ''.join(separators.split(' '))
-        return [int_nwords,seps]
+    def check(self, line_split, int_nwords,int_minlen, int_maxlen):
+        '''Something's wrong, I can feel it. 
+        How can I call a self call and make this recursive?'''
+        len_pwd = 0
+        for word in line_split[0:int_nwords]:
+            len_pwd += len(word)
+        if len_pwd>int_maxlen:
+            int_nwords -= 1
+            self.check(line_split, int_nwords, int_minlen, int_maxlen)
+        else: 
+            if len_pwd>int_minlen:
+                int_nwords += 1
+                self.check(line_split, int_nwords, int_minlen, int_maxlen)
+        return int_nwords
 
         
