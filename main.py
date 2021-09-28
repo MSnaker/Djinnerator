@@ -11,6 +11,9 @@ with open('./text/salt.txt','rb') as fsalt:
     salt = fsalt.readlines()[0]
 print(os.getcwd())
 arr_lines = Password.import_encrypted()
+for page in arr_lines:
+    for line in page:
+        print(line)
 enc_proof = b'gAAAAABhSd17y7PzMpGyLmQD7TZlPbXkURzrEmuO2SADY1Lc-HkQgNkoPPl6iqANnriaZNOWanv5B2rSj0M-iFiqwsxyuntKw_rdd1xb8ErZLp09QlvRAgY='
 
 # Default parameters
@@ -33,15 +36,26 @@ def press(button):
     if button == 'Generate':
         try:
             '''This method gets the y-th line of the x-th page, and decrypts it'''
-            x = int(app.getEntry('firstEnt').lower(), 'utf-8') - 96
-            y = int(app.getEntry('secondEnt').lower(), 'utf-8') - 96
+            a = app.getEntry('firstEnt').lower()
+            # print(ord(a),type(a))
+            b = app.getEntry('secondEnt').lower()
+            # print(ord(b),type(b))
+            x = ord(a) - 96
+            y = ord(b) - 96
             print('Decrypting', x, 'page,', y, 'line...')
             # Decrypt the line
             line = arr_lines[x][y]
+            print(line, type(line))
+            pwd = bytes(app.getEntry('PwdEnt'),'utf-8')
+            print(pwd, type(pwd))
+            f = Password.start_Fernet(salt,pwd)
             decr_line = f.decrypt(line)
+            print(decr_line, type(decr_line))
             # Here it is determined if the password satisfies the parameters acquired, if parameters have been provided
             int_minlen = int(app.getEntry('MinLenEnt'))
+            print(type(int_minlen))
             int_maxlen = int(app.getEntry('MaxLenEnt'))
+            print(type(int_maxlen))
             seps = app.getEntry('sepEnt')
             line_split = str(decr_line, 'utf-8').split(' ')
             Password.tune(line_split, int_nwords, int_minlen, int_maxlen)
@@ -50,7 +64,7 @@ def press(button):
             print(output)
         except (cryptography.fernet.InvalidToken, TypeError):
             output = "wow, much try"
-        app.setLabel('outLab',output)
+            app.setLabel('outLab',output)
 
 
 app = gui('Password Djinnerator')
@@ -84,7 +98,7 @@ app.setEntryDefault('MaxLenEnt','16')
 int_row+=1
 app.addLabel('naLab', 'Non-allowed characters (separate with space): ',row = int_row, column = 0)
 app.addEntry('sepEnt', row = int_row, column = 1)
-app.setEntryDefault('sepEnt','.,-')
+app.setEntryDefault('sepEnt','\(|)/')
 app.stopSubWindow()
 
 # this is another pop-up

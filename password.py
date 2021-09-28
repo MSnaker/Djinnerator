@@ -14,8 +14,7 @@ class Password():
         '''Function to import all pages of the origin file as a list (of lists) [list_pages(list_lines)].'''
         
         print('Importing all lines from the encoded file...')
-        os.chdir('./text')
-        with open('encoded.txt','rb') as fr:
+        with open('./text/encoded.txt','rb') as fr:
             list_lines = fr.readlines()
 
         print('Structuring the data...')
