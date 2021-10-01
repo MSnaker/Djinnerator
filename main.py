@@ -10,13 +10,37 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 with open('./text/salt.txt','rb') as fsalt:
     salt = fsalt.readlines()[0]
 # print(os.getcwd())
-passwd = Password()
-arr_lines = passwd.import_encrypted()
+
+'''Section to import all pages of the origin file as a list (of lists) [list_pages(list_lines)].'''
+        
+print('Importing all lines from the encoded file...')
+with open('./text/encoded.txt','rb') as fr:
+    list_lines = fr.readlines()
+
+print('Structuring the data...')
+h = 30
+arr_lines = [[] for y in range(h)]
+page = 0
+for line in list_lines:
+    if line.startswith(b'Page'):
+        print('Accessing page', page,'...')
+        page+=1
+        continue
+    arr_lines[page-1].append([line])
+
+# i=0
+# for page in arr_lines:
+#     print(page)
+#     print(i, 'length', len(page))
+#     i+=1
+
+
 enc_proof = b'gAAAAABhSd17y7PzMpGyLmQD7TZlPbXkURzrEmuO2SADY1Lc-HkQgNkoPPl6iqANnriaZNOWanv5B2rSj0M-iFiqwsxyuntKw_rdd1xb8ErZLp09QlvRAgY='
 
 def press(button):
     pwd = bytes(app.getEntry('PwdEnt'),'utf-8')
     try:
+        passwd = Password(salt, Password)
         #code here to create key from a password
         f = passwd.start_Fernet(salt,pwd)
         proof=str(f.decrypt(enc_proof),'utf-8')
