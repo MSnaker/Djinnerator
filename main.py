@@ -33,8 +33,11 @@ enc_proof = b'gAAAAABhSd17y7PzMpGyLmQD7TZlPbXkURzrEmuO2SADY1Lc-HkQgNkoPPl6iqANnr
 
 def press(button):
     pwd = bytes(app.getEntry('PwdEnt'),'utf-8')
+    seps = app.getEntry('separatorsEnt').split(None)
+    minlen = int(app.getEntry('minEnt'))
+    maxlen = int(app.getEntry('maxEnt'))
     try:
-        passwd = Password(salt, pwd)
+        passwd = Password(salt, pwd, seps, minlen, maxlen)
         #code here to create key from a password
         proof = str(passwd.f.decrypt(enc_proof),'utf-8')
     except (cryptography.fernet.InvalidToken, TypeError):
@@ -48,31 +51,55 @@ def press(button):
         x = ord(app.getEntry('firstEnt').lower()) - 96
         y = ord(app.getEntry('secondEnt').lower()) - 96
         line = arr_lines[x][y][0].strip()
-        print(line)
         try:
             '''This method gets the y line of the x page, and decrypts it'''
             decr_line = str(passwd.f.decrypt(line).strip(), 'utf-8')
-            print(decr_line, type(decr_line))
-            output = str(passwd.pswgen(decr_line.split(None),y,3,'.,-'))
+            output = str(passwd.pswgen(decr_line.split(None),y))
         except (cryptography.fernet.InvalidToken, TypeError):
             output = "wow, much try"
         print('Decrypting', x, 'page,', y, 'line...')
-        app.setLabel('outLab',output)
+        app.setEntry('outEnt',output)
+
+def launch(win):
+    app.showSubWindow(win)
 
 app = gui('Password Djinnerator')
-app.addLabel('proofLab','',row = 1, colspan=2)    
-app.addLabel('pwdLab', 'Enter Password', row=0,column=0)
-app.addEntry('PwdEnt',row = 0, column = 1)
+# GUI elements that prove to the user that they have input the correct password
+int_row = 0
+app.addLabel('pwdLab', 'Enter Password', row = int_row,column=0)
+app.addSecretEntry('PwdEnt',row = int_row, column = 1)
+int_row += 1
+app.addLabel('proofLab','',row = int_row, colspan=2)    
+int_row += 1
+app.addButton('Acquire', press, row = int_row, colspan=2)
+int_row += 1
+app.addButtons(['Parameters','Output'], launch, row = int_row, colspan=2)
 
-app.addButton('Acquire', press, row = 2, colspan=2)
-
-app.addLabel('firstLab','Entries:',row=3,colspan = 2)
-app.addEntry('firstEnt',row=4, column = 0)
-app.addEntry('secondEnt',row=4, column = 1)
+app.startSubWindow('Output')
+int_row = 0
+app.addLabel('firstLab','Entries:',row = int_row,colspan = 2)
+int_row += 1
+app.addEntry('firstEnt',row = int_row, column = 0)
+app.addEntry('secondEnt',row = int_row, column = 1)
 app.setEntryMaxLength('firstEnt',1)
 app.setEntryMaxLength('secondEnt',1)
+int_row += 1
+app.addEntry('outEnt',row = int_row, colspan=2)
+int_row += 1
+app.addButtons(['Cancel', 'Generate'], press ,row = int_row, colspan=2)
+app.stopSubWindow()
 
-app.addLabel('outLab','',row = 5, colspan=2)
-app.addButtons(['Cancel', 'Generate'], press ,row = 6)
+app.startSubWindow('Parameters')
+int_row = 0
+app.addLabel('separatorsLab','Separators (no forbidden characters)', row = int_row, column = 0)
+app.addEntry('separatorsEnt',row=int_row,column=1)
+app.setEntryDefault('separatorsEnt',') \ | / (')
+int_row +=1
+app.addLabel('lengthLab','Password length (max/min)',row=int_row,column=0)
+app.addEntry('minEnt',row=int_row,column=1)
+app.addEntry('maxEnt',row=int_row,column=2)
+app.setEntryDefault('minEnt','8')
+app.setEntryDefault('maxEnt','16')
+app.stopSubWindow()
 
 app.go() 
