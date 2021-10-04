@@ -6,30 +6,24 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-# print(os.getcwd())
 with open('./text/salt.txt','rb') as fsalt:
     salt = fsalt.readlines()[0]
-# print(os.getcwd())
+enc_proof = b'gAAAAABhSd17y7PzMpGyLmQD7TZlPbXkURzrEmuO2SADY1Lc-HkQgNkoPPl6iqANnriaZNOWanv5B2rSj0M-iFiqwsxyuntKw_rdd1xb8ErZLp09QlvRAgY='
 
-'''Section to import all pages of the origin file as a list (of lists) [list_pages(list_lines)].'''
-        
+# Import and structure the data
 print('Importing all lines from the encoded file...')
 with open('./text/encoded.txt','rb') as fr:
     list_lines = fr.readlines()
-
 print('Structuring the data...')
-h = 30
-arr_lines = [[] for y in range(h)]
+arr_lines = [[]]
 page = 0
 for line in list_lines:
-    if line.startswith(b'Page'):
-        print('Accessing page', page,'...')
+    if line.startswith(b'Page') and arr_lines != [[]]:
+        arr_lines.append([])
         page+=1
+        print('Accessing page', page,'...')
         continue
-    arr_lines[page-1].append([line])
-
-
-enc_proof = b'gAAAAABhSd17y7PzMpGyLmQD7TZlPbXkURzrEmuO2SADY1Lc-HkQgNkoPPl6iqANnriaZNOWanv5B2rSj0M-iFiqwsxyuntKw_rdd1xb8ErZLp09QlvRAgY='
+    arr_lines[page].append([line])
 
 def press(button):
     pwd = bytes(app.getEntry('PwdEnt'),'utf-8')
@@ -48,17 +42,19 @@ def press(button):
         app.stop()
     
     if button == 'Generate':
-        x = ord(app.getEntry('firstEnt').lower()) - 96
-        y = ord(app.getEntry('secondEnt').lower()) - 96
-        line = arr_lines[x][y][0].strip()
+        passwd.npage = ord(app.getEntry('firstEnt').lower()) - 96
+        passwd.nline = ord(app.getEntry('secondEnt').lower()) - 96
+        line = arr_lines[passwd.npage][passwd.nline][0].strip()
+        dict_swap = {app.getEntry('fromEnt'):app.getEntry('toEnt')}
         try:
             '''This method gets the y line of the x page, and decrypts it'''
             decr_line = str(passwd.f.decrypt(line).strip(), 'utf-8')
-            output = str(passwd.pswgen(decr_line.split(None),y))
+            passwd.tune(decr_line)
+            passwd.pswgen(decr_line.split(None),dict_swap)
         except (cryptography.fernet.InvalidToken, TypeError):
             output = "wow, much try"
-        print('Decrypting', x, 'page,', y, 'line...')
-        app.setEntry('outEnt',output)
+        print('Decrypting', passwd.npage, 'page,', passwd.nline, 'line...')
+        app.setEntry('outEnt',passwd.output)
 
 def launch(win):
     app.showSubWindow(win)
@@ -93,13 +89,19 @@ app.startSubWindow('Parameters')
 int_row = 0
 app.addLabel('separatorsLab','Separators (no forbidden characters)', row = int_row, column = 0)
 app.addEntry('separatorsEnt',row=int_row,column=1)
-app.setEntryDefault('separatorsEnt',') \ | / (')
+app.setEntry('separatorsEnt',') \ | / (')
 int_row +=1
 app.addLabel('lengthLab','Password length (max/min)',row=int_row,column=0)
 app.addEntry('minEnt',row=int_row,column=1)
 app.addEntry('maxEnt',row=int_row,column=2)
-app.setEntryDefault('minEnt','8')
-app.setEntryDefault('maxEnt','16')
+app.setEntry('minEnt','8')
+app.setEntry('maxEnt','16')
+int_row +=1
+app.addLabel('swapLab','Characters to swap [from], [to] (no separation characters):',row=int_row, column=0)
+app.addEntry('fromEnt',row=int_row,column=1)
+app.addEntry('toEnt',row=int_row,column=2)
+app.setEntry('fromEnt','AEIOUY')
+app.setEntry('toEnt','123456')
 app.stopSubWindow()
 
 app.go() 

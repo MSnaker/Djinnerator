@@ -37,21 +37,20 @@ class Password():
         decr_line = self.f.decrypt(line)
         return decr_line
 
-    def pswgen(self,list_line): 
+    def pswgen(self,list_line, dict_swap): 
         '''This method extracts the first n words from a string and transforms the result into a password, accepting a string separators, that will rotate based on the line number in the page.
         '''
-        tr_from = 'AEIOUY'
-        tr_to = '431067'
         print('Generating password...')
         sep = self.list_seps[self.nline%len(self.list_seps)]
+        # First word
         first = list_line[0].upper()
-        trtable = first.maketrans(tr_from,tr_to)
-        first_trans = first.translate(trtable)
+        first_trans = first.translate(dict_swap)
+        # Last word
         last = list_line[self.int_nwords-1].upper()
-        trtable = last.maketrans(tr_from,tr_to)
-        last_trans = last.translate(trtable)
+        last_trans = last.translate(dict_swap)
+        # Middle word (or agglomerate)
         mid = ''.join(list_line[1:self.int_nwords-1])
-        self.output = sep.join([first_trans,mid,last_trans])
+        self.str_output = sep.join([first_trans,mid,last_trans])
 
     def tune(self, list_line):
         '''Something's wrong, I can feel it.'''
@@ -59,6 +58,7 @@ class Password():
         for word in list_line[0:self.int_nwords]:
             len_pwd += len(word) + 1
         len_pwd -= 1
+        print(len_pwd)
         if len_pwd>self.int_maxlen:
             self.int_nwords -= 1
             self.tune(list_line)
