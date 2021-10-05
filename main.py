@@ -18,18 +18,22 @@ print('Structuring the data...')
 arr_lines = [[]]
 page = 0
 for line in list_lines:
-    if line.startswith(b'Page') and arr_lines != [[]]:
-        arr_lines.append([])
-        page+=1
-        print('Accessing page', page,'...')
-        continue
-    arr_lines[page].append([line])
+    if line.startswith(b'Page'):
+        if arr_lines != [[]]:
+            arr_lines.append([])
+            page+=1
+            print('Accessing page', page,'...')
+            continue
+    else:
+        arr_lines[page].append([line])
 
 def press(button):
     pwd = bytes(app.getEntry('PwdEnt'),'utf-8')
     seps = app.getEntry('separatorsEnt').split(None)
     minlen = int(app.getEntry('minEnt'))
     maxlen = int(app.getEntry('maxEnt'))
+    print(pwd,seps,minlen,maxlen)
+    print(type(pwd),type(seps),type(minlen),type(maxlen))
     try:
         passwd = Password(salt, pwd, seps, minlen, maxlen)
         #code here to create key from a password
@@ -42,19 +46,20 @@ def press(button):
         app.stop()
     
     if button == 'Generate':
-        passwd.npage = ord(app.getEntry('firstEnt').lower()) - 96
+        passwd.npage = ord(app.getEntry('firstEnt').lower()) - 96 
         passwd.nline = ord(app.getEntry('secondEnt').lower()) - 96
-        line = arr_lines[passwd.npage][passwd.nline][0].strip()
+        line = arr_lines[passwd.npage -1][passwd.nline -1][0].strip()
+        print(line)
         dict_swap = {app.getEntry('fromEnt'):app.getEntry('toEnt')}
-        try:
-            '''This method gets the y line of the x page, and decrypts it'''
-            decr_line = str(passwd.f.decrypt(line).strip(), 'utf-8')
-            passwd.tune(decr_line)
-            passwd.pswgen(decr_line.split(None),dict_swap)
-        except (cryptography.fernet.InvalidToken, TypeError):
-            output = "wow, much try"
-        print('Decrypting', passwd.npage, 'page,', passwd.nline, 'line...')
-        app.setEntry('outEnt',passwd.output)
+        # try:
+        '''This method gets the y line of the x page, and decrypts it'''
+        decr_line = str(passwd.f.decrypt(line), 'utf-8')
+        print(decr_line)
+        passwd.tune(decr_line)
+        passwd.pswgen(decr_line.split(None),dict_swap)
+        # except (cryptography.fernet.InvalidToken, TypeError):
+            # output = "wow, much try"
+        app.setEntry('outEnt',passwd.str_output)
 
 def launch(win):
     app.showSubWindow(win)

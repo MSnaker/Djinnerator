@@ -28,6 +28,7 @@ class Password():
         self.int_maxlen = maxlen
         self.int_nwords = 3
         self.npage, self.nline = 0, 0
+        self.output = ''
 
     def getline(self, arr_lines):
         '''This method gets the y line of the x page, and decrypts it
