@@ -55,17 +55,20 @@ class Password():
 
     def tune(self, list_line):
         '''Something's wrong, I can feel it.'''
-        len_pwd = 0
-        for word in list_line[0:self.int_nwords]:
-            len_pwd += len(word) + 1
-        len_pwd -= 1
+        print('_'.join(list_line[0:(self.int_nwords+1)]))
+        len_pwd = len('_'.join(list_line[0:(self.int_nwords+1)]))
         print(len_pwd)
-        if len_pwd>self.int_maxlen:
-            self.int_nwords -= 1
-            self.tune(list_line)
-        else: 
-            if len_pwd>self.int_minlen:
-                self.int_nwords += 1
+        if self.int_nwords<5 and self.int_nwords>1:
+            if len_pwd>self.int_maxlen:
+                self.int_nwords -= 1
                 self.tune(list_line)
+            else: 
+                if len_pwd<self.int_minlen:
+                    self.int_nwords += 1
+                    self.tune(list_line)
+                else:
+                    return self.int_nwords
+        else:
+            return self.int_nwords
 
         

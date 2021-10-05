@@ -53,10 +53,11 @@ def press(button):
         dict_swap = {app.getEntry('fromEnt'):app.getEntry('toEnt')}
         # try:
         '''This method gets the y line of the x page, and decrypts it'''
-        decr_line = str(passwd.f.decrypt(line), 'utf-8')
+        decr_line = str(passwd.f.decrypt(line), 'utf-8').split(None)
         print(decr_line)
-        passwd.tune(decr_line)
-        passwd.pswgen(decr_line.split(None),dict_swap)
+        passwd.int_nwords = passwd.tune(decr_line)
+        print(passwd.int_nwords)
+        passwd.pswgen(decr_line,dict_swap)
         # except (cryptography.fernet.InvalidToken, TypeError):
             # output = "wow, much try"
         app.setEntry('outEnt',passwd.str_output)
