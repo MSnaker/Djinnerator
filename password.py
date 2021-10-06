@@ -11,8 +11,14 @@ from numpy.core.records import array
 
 class Password():
     
+    '''Attributes:'''
+    int_nwords = 3
+    npage, nline = 0, 0
+    output = ''
+
+    '''Methods:'''
     def __init__(self, salt, password, seps, minlen, maxlen):
-        '''This function is to set up the function Fernet to decode the lines.'''
+        '''This method is to set up the function Fernet to decode the lines.'''
 
         print('Initialising Fernet...')
         kdf = PBKDF2HMAC(
@@ -26,9 +32,6 @@ class Password():
         self.list_seps = seps
         self.int_minlen = minlen
         self.int_maxlen = maxlen
-        self.int_nwords = 3
-        self.npage, self.nline = 0, 0
-        self.output = ''
 
     def getline(self, arr_lines):
         '''This method gets the y line of the x page, and decrypts it
@@ -47,28 +50,28 @@ class Password():
         first = list_line[0].upper()
         first_trans = first.translate(dict_swap)
         # Last word
-        last = list_line[self.int_nwords-1].upper()
+        last = list_line[self.int_nwords].upper()
         last_trans = last.translate(dict_swap)
         # Middle word (or agglomerate)
-        mid = ''.join(list_line[1:self.int_nwords-1])
+        mid = ''.join(list_line[1:self.int_nwords])
         self.str_output = sep.join([first_trans,mid,last_trans])
 
     def tune(self, list_line):
         '''Something's wrong, I can feel it.'''
-        print('_'.join(list_line[0:(self.int_nwords+1)]))
-        len_pwd = len('_'.join(list_line[0:(self.int_nwords+1)]))
+        print(''.join([list_line[0],'_',''.join(list_line[1:self.int_nwords]),'_',list_line[self.int_nwords]]))
+        len_pwd = len(''.join([list_line[0],'_',''.join(list_line[1:self.int_nwords]),'_',list_line[self.int_nwords]]))
         print(len_pwd)
-        if self.int_nwords<5 and self.int_nwords>1:
-            if len_pwd>self.int_maxlen:
-                self.int_nwords -= 1
+        # if self.int_nwords<5 and self.int_nwords>1:
+        if len_pwd>self.int_maxlen:
+            self.int_nwords -= 1
+            self.tune(list_line)
+        else: 
+            if len_pwd<self.int_minlen:
+                self.int_nwords += 1
                 self.tune(list_line)
-            else: 
-                if len_pwd<self.int_minlen:
-                    self.int_nwords += 1
-                    self.tune(list_line)
-                else:
-                    return self.int_nwords
-        else:
-            return self.int_nwords
+            else:
+                return
+        # else:
+        #     return
 
         

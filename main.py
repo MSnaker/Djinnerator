@@ -49,17 +49,18 @@ def press(button):
         passwd.npage = ord(app.getEntry('firstEnt').lower()) - 96 
         passwd.nline = ord(app.getEntry('secondEnt').lower()) - 96
         line = arr_lines[passwd.npage -1][passwd.nline -1][0].strip()
-        print(line)
         dict_swap = {app.getEntry('fromEnt'):app.getEntry('toEnt')}
-        # try:
-        '''This method gets the y line of the x page, and decrypts it'''
-        decr_line = str(passwd.f.decrypt(line), 'utf-8').split(None)
-        print(decr_line)
-        passwd.int_nwords = passwd.tune(decr_line)
-        print(passwd.int_nwords)
-        passwd.pswgen(decr_line,dict_swap)
-        # except (cryptography.fernet.InvalidToken, TypeError):
-            # output = "wow, much try"
+        try:
+            '''This method gets the y line of the x page, and decrypts it'''
+            list_decr_line = str(passwd.f.decrypt(line), 'utf-8').split(None)
+            bip = passwd.int_nwords
+            passwd.tune(list_decr_line)
+            bop = passwd.int_nwords
+            if bip == bop:
+                print('Nwords did not change.')
+            passwd.pswgen(list_decr_line,dict_swap)
+        except (cryptography.fernet.InvalidToken, TypeError):
+            output = "wow, much try"
         app.setEntry('outEnt',passwd.str_output)
 
 def launch(win):
