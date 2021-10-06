@@ -10,40 +10,15 @@ from numpy.core.arrayprint import printoptions
 from numpy.core.records import array
 
 class Password():
-    def import_encrypted():
-        '''Function to import all pages of the origin file as a list (of lists) [list_pages(list_lines)].'''
-        
-        print('Importing all lines from the encoded file...')
-        os.chdir('./text')
-        with open('encoded.txt','rb') as fr:
-            list_lines = fr.readlines()
+    
+    '''Attributes:'''
+    int_nwords = 3
+    npage, nline = 0, 0
+    output = ''
 
-        print('Structuring the data...')
-        w, h = 38,31
-        arr_lines = [['boba' for x in range(w)] for y in range(h)]
-        page, i = 0, 0
-        for line in list_lines:
-            if line.startswith(b'Page'):
-                if i>9:
-                    page = 10*int(chr(line[5]))+int(chr(line[6])) 
-                else:
-                    page = int(chr(line[5]))
-                print('Accessing page', page,'...')
-                i+=1
-                continue
-            arr_lines[page][i] = line
-
-        i = 0
-        del arr_lines[0]
-        for page in arr_lines:
-            i += 1
-            for j in range(len(page)):
-                if page[-1] == 'boba':
-                    del page[-1]
-        return arr_lines
-
-    def start_Fernet(salt,password):
-        '''This function is to set up the function Fernet to decode the lines.'''
+    '''Methods:'''
+    def __init__(self, salt, password, seps, minlen, maxlen):
+        '''This method is to set up the function Fernet to decode the lines.'''
 
         print('Initialising Fernet...')
         kdf = PBKDF2HMAC(
@@ -52,61 +27,51 @@ class Password():
             salt=salt,
             iterations=420069,
         )
-        key = base64.urlsafe_b64encode(kdf.derive(password))
-        # print('Fernet key is:', key)
-        f = Fernet(key)
-        return f
+        self.f = Fernet(base64.urlsafe_b64encode(kdf.derive(password)))
+        print('Initialising default parameters...')
+        self.list_seps = seps
+        self.int_minlen = minlen
+        self.int_maxlen = maxlen
 
-    # def export_decrypted():
-        '''Writing the decoded text to another file, to prove that we are on the right path (we can encrypt and then decrypt strings)
-        We don't run this any more, as the script already gave a valid output once.'''
-
-        i = 1
-        print('Writing to text file...')
-        with open('./decoded.txt', 'w', encoding='utf-8') as fwrite:
-            for array_page in arr_lines:
-                fwrite.write(''.join(['Page',str(i)]))
-                fwrite.write('\n')
-                i +=1
-                for bytes_line in array_page:
-                    decr_line = f.decrypt(bytes_line)
-                    fwrite.write(str(decr_line))
-                    fwrite.write('\n')
-
-    def getline(arr_lines, fernet, x, y):
-        '''This method gets the y line of the x page, and decrypts it'''
-
-        print('Decrypting', x, 'page,', y, 'line...')
-        line = arr_lines[x][y]
-        decr_line = fernet.decrypt(line)
+    def getline(self, arr_lines):
+        '''This method gets the y line of the x page, and decrypts it
+        '''
+        print('Decrypting', self.npage, 'page,', self.nline, 'line...')
+        line = arr_lines[self.npage][self.nline]
+        decr_line = self.f.decrypt(line)
         return decr_line
 
-    def pswgen(line, int_nline, n, seps): 
-        '''This method extracts the first n words from a string and transforms the result into a password, accepting a string separators, that will rotate based on the line number in the page.'''
-        tr_from = 'AEIOUY'
-        tr_to = '4310*<'
+    def pswgen(self,list_line, dict_swap): 
+        '''This method extracts the first n words from a string and transforms the result into a password, accepting a string separators, that will rotate based on the line number in the page.
+        '''
         print('Generating password...')
-        line_split = str(line, 'utf-8').split(' ')
-        sep = seps[int_nline%len(seps)]
-        first = line_split[0].upper()
-        trtable = first.maketrans(tr_from,tr_to)
-        first_trans = first.translate(trtable)
-        last = line_split[n-1].upper()
-        trtable = last.maketrans(tr_from,tr_to)
-        last_trans = last.translate(trtable)
-        mid = ''.join(line_split[1:n-1])
-        pswout = sep.join([first_trans,mid,last_trans])
+        sep = self.list_seps[self.nline%len(self.list_seps)]
+        # First word
+        first = list_line[0].upper()
+        first_trans = first.translate(dict_swap)
+        # Last word
+        last = list_line[self.int_nwords].upper()
+        last_trans = last.translate(dict_swap)
+        # Middle word (or agglomerate)
+        mid = ''.join(list_line[1:self.int_nwords])
+        self.str_output = sep.join([first_trans,mid,last_trans])
 
-        return pswout
-
-    def acquire_parameters(minimum,maximum,list_line,separators):
-        pswlen, int_nwords = 0, 0
-        for element in list_line:
-            pswlen += len(element)
-            int_nwords += 1
-            if pswlen<maximum and pswlen>minimum:
-                break
-        seps = ''.join(separators.split(' '))
-        return [int_nwords,seps]
+    def tune(self, list_line):
+        '''Something's wrong, I can feel it.'''
+        print(''.join([list_line[0],'_',''.join(list_line[1:self.int_nwords]),'_',list_line[self.int_nwords]]))
+        len_pwd = len(''.join([list_line[0],'_',''.join(list_line[1:self.int_nwords]),'_',list_line[self.int_nwords]]))
+        print(len_pwd)
+        # if self.int_nwords<5 and self.int_nwords>1:
+        if len_pwd>self.int_maxlen:
+            self.int_nwords -= 1
+            self.tune(list_line)
+        else: 
+            if len_pwd<self.int_minlen:
+                self.int_nwords += 1
+                self.tune(list_line)
+            else:
+                return
+        # else:
+        #     return
 
         
